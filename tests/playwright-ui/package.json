@@ -1,0 +1,11 @@
+{
+  "name": "petclinic-playwright-ui-tests",
+  "version": "4.0.0-SNAPSHOT",
+  "private": true,
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1"
+  }
+}

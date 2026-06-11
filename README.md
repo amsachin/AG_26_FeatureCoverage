@@ -1,178 +1,170 @@
-# Spring PetClinic Sample Application [![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml)[![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml)
+# AG_26_FeatureCoverage
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/spring-projects/spring-petclinic) [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=7517918)
+Companion repository for the Test Guild Community Webinar **From Code Coverage to Feature Coverage**.
 
-## Understanding the Spring Petclinic application with a few diagrams
+This project uses [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) as the sample application for showing how traditional code coverage and feature-level coverage answer different questions. The fork adds external test suites and JaCoCo wiring so the demo can compare raw line coverage with coverage viewed through product workflows.
 
-See the presentation here:  
-[Spring Petclinic Sample Application (legacy slides)](https://speakerdeck.com/michaelisvy/spring-petclinic-sample-application?slide=20)
+## Webinar Context
 
-> **Note:** These slides refer to a legacy, pre–Spring Boot version of Petclinic and may not reflect the current Spring Boot–based implementation.  
-> For up-to-date information, please refer to this repository and its documentation.
+Most teams can report a unit-test coverage percentage from tools like JaCoCo, but that number does not tell a manager, QA lead, or product owner whether a feature is actually tested. The problem gets harder when one feature spans backend, web UI, mobile, and desktop clients with tests spread across Cucumber, TestNG, Playwright, and other frameworks.
 
+The webinar uses two demos:
 
-## Run Petclinic locally
+1. A baseline JaCoCo run on this Spring Boot application to show what code coverage provides.
+2. A feature-level coverage dashboard demo that uses a shared tagging convention and JSON contract to aggregate tests across frameworks.
 
-Spring Petclinic is a [Spring Boot](https://spring.io/guides/gs/spring-boot) application built using [Maven](https://spring.io/guides/gs/maven/) or [Gradle](https://spring.io/guides/gs/gradle/).
-Java 17 or later is required for the build, and the application can run with Java 17 or newer.
+This repository supports the first demo and the PetClinic-side test/coverage inputs for the second demo. The live webinar also covers dashboard behavior, Jira bug links, product analytics, and the framework-neutral JSON contract even where those pieces are not fully represented in this fork.
 
-You first need to clone the project locally:
+## What You Will Take Away
 
-```bash
-git clone https://github.com/spring-projects/spring-petclinic.git
-cd spring-petclinic
-```
-If you are using Maven, you can start the application on the command-line as follows:
+- Where line and branch coverage stop being useful, and the questions they cannot answer.
+- How a tagging convention and JSON contract can let one dashboard consume Cucumber, TestNG, Playwright, or any framework with a small generator.
+- How to add a new framework like Playwright to an existing dashboard without changing the dashboard itself.
+- Why coverage and product analytics answer different questions, and why teams need both.
+- How AI sped up test scaffolding, generator design, dashboard iteration, and documentation.
+- Where AI still needed human judgment, especially for product-aware feature and functionality decisions.
+
+## What This Fork Adds
+
+The upstream PetClinic application remains intact. This fork adds a coverage-focused testing layer around it:
+
+| Area | Path | Purpose |
+| --- | --- | --- |
+| JaCoCo Maven wiring | `pom.xml` | Generates HTML/XML coverage reports and adds an advanced external-test coverage profile. |
+| Cucumber UI tests | `tests/cucumber-ui` | Browser-driven Selenium/Cucumber coverage for selected user workflows. |
+| TestNG API tests | `tests/testng-api` | RestAssured/TestNG coverage for selected HTTP/API flows. |
+| Playwright UI tests | `tests/playwright-ui` | Playwright coverage for additional pages and routes. |
+| Coverage notes | `tests/coverage/JACOCO_README.md` | Report locations, Maven lifecycle notes, and the current endpoint coverage matrix. |
+
+## What This Fork Does Not Try To Be
+
+This is not a replacement for the upstream Spring PetClinic project. It is a demo fork for coverage analysis.
+
+It also does not contain the full feature dashboard shown during the live webinar. The dashboard portion is covered in the demo to explain the tagging convention, JSON contract, framework adapters, Jira bug-link handling, and how product-facing coverage views differ from raw code coverage.
+
+## Prerequisites
+
+- Java 17 or newer
+- `./mvnw` from this repository
+- Node.js and npm for the Playwright suite
+- Chrome or another supported browser for browser-driven tests
+
+## Run PetClinic
 
 ```bash
 ./mvnw spring-boot:run
 ```
-With Gradle, the command is as follows:
 
-```bash
-./gradlew bootRun
+Open:
+
+```text
+http://localhost:8080
 ```
 
-You can then access the Petclinic at <http://localhost:8080/>.
+The application uses an in-memory H2 database by default and loads sample data at startup.
 
-<img width="1042" alt="petclinic-screenshot" src="https://cloud.githubusercontent.com/assets/838318/19727082/2aee6d6c-9b8e-11e6-81fe-e889a5ddfded.png">
+## Demo 1: Baseline Code Coverage
 
-You can, of course, run Petclinic in your favorite IDE.
-See below for more details.
-
-## Building a Container
-
-There is no `Dockerfile` in this project. You can build a container image (if you have a docker daemon) using the Spring Boot build plugin:
-
-## Running the Container Image
+Run the normal application test suite and generate the standard JaCoCo report:
 
 ```bash
-./mvnw spring-boot:build-image
-docker images | grep petclinic
-docker run -p 8080:8080 docker.io/library/spring-petclinic:latest
+./mvnw clean verify
 ```
 
-## In case you find a bug/suggested improvement for Spring Petclinic
+Open:
 
-Our issue tracker is available [here](https://github.com/spring-projects/spring-petclinic/issues).
+```text
+target/site/jacoco/index.html
+```
 
-## Database configuration
+This report answers structural coverage questions such as which lines, branches, methods, and classes were executed by the tests.
 
-In its default configuration, Petclinic uses an in-memory database (H2) which
-gets populated at startup with data. The h2 console is exposed at `http://localhost:8080/h2-console`,
-and it is possible to inspect the content of the database using the `jdbc:h2:mem:<uuid>` URL. The UUID is printed at startup to the console.
+## Demo 2 Input: External Test Coverage
 
-A similar setup is provided for MySQL and PostgreSQL if a persistent database configuration is needed. Note that whenever the database type changes, the app needs to run with a different profile: `spring.profiles.active=mysql` for MySQL or `spring.profiles.active=postgres` for PostgreSQL. See the [Spring Boot documentation](https://docs.spring.io/spring-boot/how-to/properties-and-configuration.html#howto.properties-and-configuration.set-active-spring-profiles) for more detail on how to set the active profile.
+The external suites can be run independently against a running PetClinic instance.
 
-You can start MySQL or PostgreSQL locally with whatever installer works for your OS or use docker:
+Start PetClinic:
 
 ```bash
-docker run -e MYSQL_USER=petclinic -e MYSQL_PASSWORD=petclinic -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=petclinic -p 3306:3306 mysql:9.6
+./mvnw spring-boot:run
 ```
 
-or
+Run Cucumber UI tests:
 
 ```bash
-docker run -e POSTGRES_USER=petclinic -e POSTGRES_PASSWORD=petclinic -e POSTGRES_DB=petclinic -p 5432:5432 postgres:18.3
+./mvnw -f tests/cucumber-ui/pom.xml test
 ```
 
-Further documentation is provided for [MySQL](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/mysql/petclinic_db_setup_mysql.txt)
-and [PostgreSQL](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/postgres/petclinic_db_setup_postgres.txt).
-
-Instead of vanilla `docker` you can also use the provided `docker-compose.yml` file to start the database containers. Each one has a service named after the Spring profile:
+Run TestNG API tests:
 
 ```bash
-docker compose up mysql
+./mvnw -f tests/testng-api/pom.xml test
 ```
 
-or
+Run Playwright UI tests:
 
 ```bash
-docker compose up postgres
+cd tests/playwright-ui
+npm ci
+npm test
 ```
 
-## Test Applications
+By default, these suites expect PetClinic at:
 
-At development time we recommend you use the test applications set up as `main()` methods in `PetClinicIntegrationTests` (using the default H2 database and also adding Spring Boot Devtools), `MySqlTestApplication` and `PostgresIntegrationTests`. These are set up so that you can run the apps in your IDE to get fast feedback and also run the same classes as integration tests against the respective database. The MySql integration tests use Testcontainers to start the database in a Docker container, and the Postgres tests use Docker Compose to do the same thing.
+```text
+http://localhost:8080
+```
 
-## Compiling the CSS
+## Advanced Coverage Flow
 
-There is a `petclinic.css` in `src/main/resources/static/resources/css`. It was generated from the `petclinic.scss` source, combined with the [Bootstrap](https://getbootstrap.com/) library. If you make changes to the `scss`, or upgrade Bootstrap, you will need to re-compile the CSS resources using the Maven profile "css", i.e. `./mvnw package -P css`. There is no build profile for Gradle to compile the CSS.
+The advanced Maven profile starts PetClinic with the JaCoCo agent, runs the external Cucumber, TestNG, and Playwright suites, dumps coverage after each suite, and generates separate plus combined reports.
 
-## Working with Petclinic in your IDE
+```bash
+./mvnw clean verify -Padvanced-cucumber-coverage -DskipTests
+```
 
-### Prerequisites
+Default app URL for this flow:
 
-The following items should be installed in your system:
+```text
+http://localhost:18080
+```
 
-- Java 17 or newer (full JDK, not a JRE)
-- [Git command line tool](https://help.github.com/articles/set-up-git)
-- Your preferred IDE
-  - Eclipse with the m2e plugin. Note: when m2e is available, there is a m2 icon in `Help -> About` dialog. If m2e is
-  not there, follow the installation process [here](https://www.eclipse.org/m2e/)
-  - [Spring Tools Suite](https://spring.io/tools) (STS)
-  - [IntelliJ IDEA](https://www.jetbrains.com/idea/)
-  - [VS Code](https://code.visualstudio.com)
+Generated reports:
 
-### Steps
+```text
+target/site/jacoco-cucumber-ui/index.html
+target/site/jacoco-testng-api/index.html
+target/site/jacoco-playwright-ui/index.html
+target/site/jacoco-advanced/index.html
+```
 
-1. On the command line run:
+See [tests/coverage/JACOCO_README.md](tests/coverage/JACOCO_README.md) for the current endpoint coverage matrix and Maven lifecycle details.
 
-    ```bash
-    git clone https://github.com/spring-projects/spring-petclinic.git
-    ```
+## Feature Coverage Versus Code Coverage
 
-1. Inside Eclipse or STS:
+JaCoCo tells developers which JVM bytecode was executed. That is valuable, but it does not answer product-facing questions such as:
 
-    Open the project via `File -> Import -> Maven -> Existing Maven project`, then select the root directory of the cloned repo.
+- Is a specific feature covered?
+- Which team owns the tests for that feature?
+- Which framework contains the relevant tests?
+- Are there open Jira bugs tied to those tests?
+- Are important but low-traffic workflows covered before release?
 
-    Then either build on the command line `./mvnw generate-resources` or use the Eclipse launcher (right-click on project and `Run As -> Maven install`) to generate the CSS. Run the application's main method by right-clicking on it and choosing `Run As -> Java Application`.
+The webinar uses this fork to ground the code-coverage side, then shows how the same testing activity can be rolled up into feature-level coverage using tags, generators, and a common JSON shape.
 
-1. Inside IntelliJ IDEA:
+## AI-Assisted Build Notes
 
-    In the main menu, choose `File -> Open` and select the Petclinic [pom.xml](pom.xml). Click on the `Open` button.
+AI helped accelerate the first version of this solution by drafting test scaffolding, Maven profile wiring, coverage documentation, and first-pass endpoint mapping.
 
-    - CSS files are generated from the Maven build. You can build them on the command line `./mvnw generate-resources` or right-click on the `spring-petclinic` project then `Maven -> Generates sources and Update Folders`.
+Human review was still required for:
 
-    - A run configuration named `PetClinicApplication` should have been created for you if you're using a recent Ultimate version. Otherwise, run the application by right-clicking on the `PetClinicApplication` main class and choosing `Run 'PetClinicApplication'`.
+- Deciding what counts as a feature versus a functionality.
+- Confirming whether a test meaningfully covers product behavior.
+- Choosing tagging conventions that would work for real teams.
+- Separating demo artifacts from files that should be checked into a public repo.
 
-1. Navigate to the Petclinic
+## Upstream Project And License
 
-    Visit [http://localhost:8080](http://localhost:8080) in your browser.
+This project is based on the upstream [spring-projects/spring-petclinic](https://github.com/spring-projects/spring-petclinic) project.
 
-## Looking for something in particular?
-
-|Spring Boot Configuration | Class or Java property files  |
-|--------------------------|---|
-|The Main Class | [PetClinicApplication](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/java/org/springframework/samples/petclinic/PetClinicApplication.java) |
-|Properties Files | [application.properties](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources) |
-|Caching | [CacheConfiguration](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/java/org/springframework/samples/petclinic/system/CacheConfiguration.java) |
-
-## Interesting Spring Petclinic branches and forks
-
-The Spring Petclinic "main" branch in the [spring-projects](https://github.com/spring-projects/spring-petclinic)
-GitHub org is the "canonical" implementation based on Spring Boot and Thymeleaf. There are
-[quite a few forks](https://spring-petclinic.github.io/docs/forks.html) in the GitHub org
-[spring-petclinic](https://github.com/spring-petclinic). If you are interested in using a different technology stack to implement the Pet Clinic, please join the community there.
-
-## Interaction with other open-source projects
-
-One of the best parts about working on the Spring Petclinic application is that we have the opportunity to work in direct contact with many Open Source projects. We found bugs/suggested improvements on various topics such as Spring, Spring Data, Bean Validation and even Eclipse! In many cases, they've been fixed/implemented in just a few days.
-Here is a list of them:
-
-| Name | Issue |
-|------|-------|
-| Spring JDBC: simplify usage of NamedParameterJdbcTemplate | [SPR-10256](https://github.com/spring-projects/spring-framework/issues/14889) and [SPR-10257](https://github.com/spring-projects/spring-framework/issues/14890) |
-| Bean Validation / Hibernate Validator: simplify Maven dependencies and backward compatibility |[HV-790](https://hibernate.atlassian.net/browse/HV-790) and [HV-792](https://hibernate.atlassian.net/browse/HV-792) |
-| Spring Data: provide more flexibility when working with JPQL queries | [DATAJPA-292](https://github.com/spring-projects/spring-data-jpa/issues/704) |
-
-## Contributing
-
-The [issue tracker](https://github.com/spring-projects/spring-petclinic/issues) is the preferred channel for bug reports, feature requests and submitting pull requests.
-
-For pull requests, editor preferences are available in the [editor config](.editorconfig) for easy use in common text editors. Read more and download plugins at <https://editorconfig.org>. All commits must include a __Signed-off-by__ trailer at the end of each commit message to indicate that the contributor agrees to the Developer Certificate of Origin.
-For additional details, please refer to the blog post [Hello DCO, Goodbye CLA: Simplifying Contributions to Spring](https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring).
-
-## License
-
-The Spring PetClinic sample application is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
+The Spring PetClinic sample application is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0). See [LICENSE.txt](LICENSE.txt).
