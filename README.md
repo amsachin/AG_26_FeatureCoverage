@@ -120,7 +120,7 @@ http://localhost:8080
 The advanced Maven profile starts PetClinic with the JaCoCo agent, runs the external Cucumber, TestNG, and Playwright suites, dumps coverage after each suite, and generates separate plus combined reports.
 
 ```bash
-./mvnw clean verify -Padvanced-cucumber-coverage -DskipTests
+./mvnw clean verify -Padvanced-e2e-coverage -DskipTests
 ```
 
 Default app URL for this flow:

@@ -309,7 +309,7 @@
 
   <profiles>
     <profile>
-      <id>advanced-cucumber-coverage</id>
+      <id>advanced-e2e-coverage</id>
       <properties>
         <browser>chrome</browser>
         <headless>true</headless>
@@ -321,7 +321,7 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>start-app-for-cucumber-coverage</id>
+                <id>start-app-for-e2e-coverage</id>
                 <phase>pre-integration-test</phase>
                 <goals>
                   <goal>start</goal>
@@ -334,7 +334,7 @@
                 </configuration>
               </execution>
               <execution>
-                <id>stop-app-for-cucumber-coverage</id>
+                <id>stop-app-for-e2e-coverage</id>
                 <phase>verify</phase>
                 <goals>
                   <goal>stop</goal>

@@ -20,7 +20,7 @@ target/site/jacoco/jacoco.xml
 Starts PetClinic with the JaCoCo agent, runs external Cucumber Selenium UI tests, TestNG RestAssured API tests, and Playwright UI tests, dumps coverage data, stops the app, and creates separate and combined reports.
 
 ```bash
-./mvnw clean verify -Padvanced-cucumber-coverage -DskipTests
+./mvnw clean verify -Padvanced-e2e-coverage -DskipTests
 ```
 
 Reports:
